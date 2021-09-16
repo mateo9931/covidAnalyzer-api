@@ -12,13 +12,17 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import eci.arsw.covidanalyzer.LThread;
+
+
 
 /**
  * A Camel Application
  */
 public class CovidAnalyzerTool {
-
-    private ResultAnalyzer resultAnalyzer;
+	
+	private List<LThread> readThread= new ArrayList<LThread>();
+	private ResultAnalyzer resultAnalyzer;
     private TestReader testReader;
     private int amountOfFilesTotal;
     private AtomicInteger amountOfFilesProcessed;
@@ -28,18 +32,29 @@ public class CovidAnalyzerTool {
         testReader = new TestReader();
         amountOfFilesProcessed = new AtomicInteger();
     }
+    
+    
+    
 
-    public void processResultData() {
+    public void processResultData( int hilos) {
+    	
         amountOfFilesProcessed.set(0);
         List<File> resultFiles = getResultFileList();
         amountOfFilesTotal = resultFiles.size();
-        for (File resultFile : resultFiles) {
-            List<Result> results = testReader.readResultsFromFile(resultFile);
-            for (Result result : results) {
-                resultAnalyzer.addResult(result);
-            }
-            amountOfFilesProcessed.incrementAndGet();
+        
+        int contador=0;
+        int contador2=0;
+        
+        for(int i=0;i<hilos;i++){
+        	contador2=resultFiles.size()/hilos;
+            LThread hilo = new LThread("Thread"+i,resultFiles,contador,contador2);
+            readThread.add(hilo);
+            contador =contador2+1;
+    }
+        for(LThread i: readThread){
+        	i.run();
         }
+        
     }
 
     private List<File> getResultFileList() {
@@ -62,7 +77,7 @@ public class CovidAnalyzerTool {
      */
     public static void main(String... args) throws Exception {
         CovidAnalyzerTool covidAnalyzerTool = new CovidAnalyzerTool();
-        Thread processingThread = new Thread(() -> covidAnalyzerTool.processResultData());
+        Thread processingThread = new Thread(() -> covidAnalyzerTool.processResultData(5));
         processingThread.start();
         while (true) {
             Scanner scanner = new Scanner(System.in);
