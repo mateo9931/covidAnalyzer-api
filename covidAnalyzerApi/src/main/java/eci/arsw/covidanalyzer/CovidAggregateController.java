@@ -6,16 +6,13 @@ import com.google.gson.Gson;
 import eci.arsw.covidanalyzer.model.Result;
 import eci.arsw.covidanalyzer.model.ResultType;
 import eci.arsw.covidanalyzer.service.ICovidAggregateService;
-import org.apache.logging.log4j.message.ReusableMessage;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
